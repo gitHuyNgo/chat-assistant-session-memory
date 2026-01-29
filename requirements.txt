@@ -1,0 +1,6 @@
+tiktoken
+openai
+streamlit
+dotenv
+pydantic-settings
+typer

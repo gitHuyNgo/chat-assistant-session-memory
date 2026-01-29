@@ -1,0 +1,14 @@
+[
+  {
+    "role": "user",
+    "content": "I am an AI Engineer using Python most of the time and I really hate Java due to its complexity"
+  },
+  {
+    "role": "assistant",
+    "content": "Noted. I will remember that you prefer Python and dislike Java."
+  },
+  {
+    "role": "user",
+    "content": "Write a Hello World function for me"
+  }
+]

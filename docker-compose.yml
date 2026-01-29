@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ai-assistant:
+    build: .
+    container_name: chat_session_memory
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: unless-stopped
