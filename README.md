@@ -36,6 +36,10 @@ Unlike generic chatbots, this system is built to:
 This project serves as a comprehensive demonstration of building **Context-Aware AI Applications** using **Python**, **Streamlit**, and **OpenAI**, fully containerized with **Docker** for production-grade reproducibility.
 
 
+## Live Demo
+[![Demo Video](docs/images/demo.png)](https://youtu.be/kO16Jg7eCCM)
+
+
 ## System Architecture
 ![System Architecture](docs/images/system_architecture.png)
 
@@ -58,7 +62,6 @@ To prevent context window overflow and maintain performance, memory management i
 * **Memory Manager:** Triggered only when the limit is exceeded. It extracts key entities (Facts, Preferences) and summarizes the recent conversation chunk.
 * **Persistent Storage:** The consolidated data is serialized into a local JSON file (`session_memory.json`), ensuring the "brain" survives application restarts.
 
-## Live Demo
 
 ## Installation & Setup
 
