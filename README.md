@@ -38,7 +38,7 @@ This project serves as a comprehensive demonstration of building **Context-Aware
 
 ## Live Demo
 [![Demo Video](docs/images/demo.png)](https://youtu.be/kO16Jg7eCCM)
-
+> Click to watch the full demo on YouTube
 
 ## System Architecture
 ![System Architecture](docs/images/system_architecture.png)
