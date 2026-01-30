@@ -47,9 +47,6 @@ def count_messages_tokens(
 
     This implementation follows OpenAI's ChatML accounting rules, including
     fixed overhead per message and per name field.
-
-    Reference:
-    https://github.com/openai/openai-cookbook/blob/main/examples/How_to_count_tokens_with_tiktoken.ipynb
     """
     encoding = get_encoding_for_model(model_name)
 

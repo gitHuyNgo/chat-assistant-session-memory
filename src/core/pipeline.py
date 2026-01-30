@@ -41,9 +41,15 @@ class QueryPipeline:
         """
         memory_context_str = "None"
         if session_memory:
-            memory_context_str = session_memory.model_dump_json(
-                exclude={"message_range_summarized"}
-            )
+            memory_dict = session_memory.model_dump()
+
+            relevant_memory = {
+                "user_profile": memory_dict.get("user_profile"),
+                "recent_session_summaries": memory_dict.get("session_summaries", [])[-10:]
+            }
+
+            memory_context_str = json.dumps(relevant_memory, ensure_ascii=False)
+
 
         user_input = (
             "=== SESSION MEMORY (What we know) ===\n"
