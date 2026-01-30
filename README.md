@@ -111,7 +111,10 @@ pip install -r requirements.txt
 Once the application is up and running, you can interact with it via the Web UI or the CLI.
 ### 🖥️ Mode 1: Interactive Web UI
 If you followed the installation steps, the web interface is accessible at:
-👉 **[http://localhost:8501](http://localhost:8501)**
+👉 **[http://localhost:8501](http://localhost:8501)** or
+```bash
+streamlit run app/ui.py
+```
 
 #### Demo Walkthrough
 To verify the core requirements quickly, use the **Test Scenarios** panel in the sidebar:
@@ -145,19 +148,31 @@ You can execute the evaluation flows directly from the command line. This is use
 #### Test Flow 1: Memory & Summarization
 Run a simulation of a long user session to test the memory manager.
 ```bash
+# Docker
 docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/long_session.json
+
+# Local Python Setup
+python app/cli.py run-log tests/data/long_session.json
 ```
 
 #### Test Flow 2: Ambiguity Detection
 Run the specific ambiguity test case.
 ```bash
+# Docker
 docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/ambiguous.json
+
+# Local Python Setup
+python app/cli.py run-log tests/data/ambiguous.json
 ```
 
 #### Test Flow 3: Instant Extraction
 Run the specific instant extraction test case.
 ```bash
+# Docker
 docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/context.json
+
+# Local Python Setup
+python app/cli.py run-log tests/data/context.json
 ```
 
 
