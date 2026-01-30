@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     """
 
     OPENAI_API_KEY: str
-    MODEL_NAME: str = "gpt-5.2"
+    MODEL_NAME: str = "gpt-4o"
     MEMORY_THRESHOLD_TOKENS: int = 200
 
     model_config = SettingsConfigDict(
