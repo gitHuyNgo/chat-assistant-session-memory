@@ -9,7 +9,6 @@
 
 ## Table of Contents
 *   [Introduction](#introduction)
-*   [Key Features](#key-features)
 *   [Live Demo](#live-demo)
 *   [System Architecture](#system-architecture)
 *   [Installation & Setup](#installation--setup)
@@ -17,9 +16,9 @@
     *   [Configuration](#configuration)
     *   [Installation Options](#installation-options)
 *   [Usage & Testing](#usage--testing)
-*   [Technical Decisions](#technical-decisions)
 *   [Project Structure](#project-structure)
-*   [Future Improvements](#future-improvements)
+*   [Assumptions & Limitations](#assumptions-&-limitations)
+*   [Acknowledgments](#acknowledgments)
 
 ---
 
@@ -37,36 +36,27 @@ Unlike generic chatbots, this system is built to:
 This project serves as a comprehensive demonstration of building **Context-Aware AI Applications** using **Python**, **Streamlit**, and **OpenAI**, fully containerized with **Docker** for production-grade reproducibility.
 
 
-## Key Features
-
-### 1. 💾 Long-Term Persistent Memory
-Unlike standard sessions that reset on refresh, this assistant builds a **dynamic user profile** that evolves over time.
-* **Automatic Consolidation:** A background process monitors conversation density (token usage). When the buffer is full, it triggers an LLM-based summarization engine.
-* **Entity Extraction:** It identifies and extracts key facts (e.g., *Job Title, Tech Stack, Hobbies*) and Constraints (e.g., *"No Java code", "Concise answers only"*).
-* **Storage:** Data is serialized into `session_memory.json`, allowing the "brain" to survive server restarts or container destruction (when volumes are mapped).
-
-### 2. 🤔 Proactive Ambiguity Resolution
-The system refuses to guess when the user's intent is unclear. It implements a **Human-in-the-loop** clarification flow.
-* **Polysemy Detection:** Analyzes queries for words with multiple meanings (e.g., *"Bank"* could mean *Financial Institution* or *River Bank*).
-* **Interactive Clarification:** Instead of hallucinating an answer, the UI presents distinct options (Pills) for the user to select the correct context.
-* **Fallback Handling:** Safely handles edge cases where the user ignores options and changes the topic entirely.
-
-### 3. 🔄 Contextual Query Rewriting
-Enables natural, human-like conversation by resolving linguistic references.
-* **Anaphora Resolution:** Understands pronouns like *"it", "that", "him"* by looking back at conversation history.
-* **Query Expansion:** Automatically rewrites short queries into fully self-contained prompts before sending them to the LLM.
-    * *User:* "Why is it slow?" (Context: Python)
-    * *System Rewrites:* "Why is **Python** slow?"
-
-### 4. 🛡️ Robust Engineering & Architecture
-Built with a focus on stability and reproducibility.
-* **Structured Outputs:** Leverages **Pydantic** models to enforce strict JSON schemas for all LLM outputs, eliminating parsing errors.
-* **Dockerized Deployment:** Includes a dual-mode Docker setup (Web UI + CLI), ensuring the application runs identically on any machine.
-* **Safe State Management:** Handles Streamlit's rerun cycles gracefully to prevent infinite loops or state loss.
-
-
 ## System Architecture
+![System Architecture](docs/images/system_architecture.png)
 
+The system architecture is designed as a **modular processing pipeline** that decouples *interaction logic* from *state management*. It operates on two distinct workflows: the synchronous **Inference Loop** (handling user queries) and the asynchronous-like **Memory Consolidation Loop** (managing short-term storage).
+
+### 1. The Inference Loop (Hot Path)
+This flow handles real-time user interaction. It ensures every query is contextualized before generating an answer.
+
+* **Context Injection (Context Loader):** At the start of every turn, the system retrieves the latest `User Profile` and `Session Summary` from the **Persistent Storage** (JSON). This context is injected into the pipeline.
+* **Ambiguity Check (Guardrail):** The raw user input is first analyzed for polysemy (e.g., "bank") or vague references.
+    * *If Ambiguous:* The flow halts, and the UI requests clarification from the user.
+    * *If Clear:* The query proceeds to the next step.
+* **Query Rewriter (Normalization):** The system resolves linguistic dependencies (anaphora resolution). For example, it converts *"fix it"* into *"fix the Python code"* using the injected context.
+* **Chat Generator:** The final LLM node generates a response based on the fully rewritten query and the consolidated memory.
+
+### 2. The Memory Consolidation Loop (Cold Path)
+To prevent context window overflow and maintain performance, memory management is handled conditionally.
+
+* **Threshold Monitor:** After every interaction, the system checks the current conversation token count against a pre-defined limit.
+* **Memory Manager:** Triggered only when the limit is exceeded. It extracts key entities (Facts, Preferences) and summarizes the recent conversation chunk.
+* **Persistent Storage:** The consolidated data is serialized into a local JSON file (`session_memory.json`), ensuring the "brain" survives application restarts.
 
 ## Live Demo
 
@@ -161,13 +151,11 @@ Run the specific ambiguity test case.
 docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/ambiguous.json
 ```
 
-#### Test Flow 3: Instant extraction
+#### Test Flow 3: Instant Extraction
 Run the specific instant extraction test case.
 ```bash
 docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/context.json
 ```
-
-## Technical Decisions
 
 
 ## Project Structure
@@ -186,4 +174,21 @@ docker-compose run --rm ai-assistant python app/cli.py run-log tests/data/contex
 └── docker-compose.yml     # Orchestration
 ```
 
-## Future Improvements
+## Assumptions & Limitations
+
+To manage the scope of this prototype, the following constraints apply:
+
+* **Latency & Overhead:** The system executes a sequential "Thought Pipeline" (Analysis → Rewriting → Generation) for every turn, resulting in higher response times and token usage compared to standard chatbots.
+    * *Roadmap: Optimize logic steps by utilizing distilled models (e.g., GPT-4o-mini) or implementing semantic caching.*
+* **Concurrency:** Uses local JSON (`session_memory.json`) for persistence, which is not thread-safe for multiple concurrent users.
+    * *Roadmap: Migrate to PostgreSQL/Redis for production.*
+* **Context Window:** Long conversations rely on summarization, potentially losing minor details.
+    * *Roadmap: Implement Vector Database (RAG) for semantic search retrieval.*
+* **Single User:** Designed as a personal assistant; currently lacks authentication and multi-user segregation.
+
+
+## Acknowledgments
+This project demonstrates a pragmatic approach to AI-assisted development:
+
+* **Core Architecture & Logic:** The core logic, including the Memory Consolidation flows, Ambiguity handling, and System Architecture, was derived entirely from my own brainstorming and design.
+* **Implementation Support:** I utilized AI tools to accelerate the implementation of the **CLI & Streamlit UI** layers and to refactor the code for better readability and structure.
